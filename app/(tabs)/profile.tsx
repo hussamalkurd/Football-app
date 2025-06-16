@@ -1,113 +1,28 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+
 
 export default function ProfileScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#E8F4FD', dark: '#1A3A4A' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#4A90E2"
-          name="person.circle.fill"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Profile</ThemedText>
-      </ThemedView>
-      
-      {/* Profile Header */}
-      <ThemedView style={styles.profileHeader}>
-        <ThemedView style={styles.avatarContainer}>
-          <IconSymbol size={80} name="person.circle.fill" color="#4A90E2" />
-        </ThemedView>
-        <ThemedView style={styles.profileInfo}>
-          <ThemedText type="subtitle">John Doe</ThemedText>
-          <ThemedText>Football Fan</ThemedText>
-          <ThemedText>Member since 2023</ThemedText>
-        </ThemedView>
-      </ThemedView>
+  const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
 
-      <ThemedText>Manage your football app preferences and account settings.</ThemedText>
-      
-      <Collapsible title="Favorite Teams">
-        <ThemedText>
-          Manage your favorite football teams to get personalized updates and notifications.
+
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedText type="title" style={styles.title}>
+          {name}
         </ThemedText>
-        <ThemedView style={styles.favoriteTeamsContainer}>
-          <ThemedView style={styles.teamItem}>
-            <ThemedText type="defaultSemiBold">Manchester United</ThemedText>
-            <ThemedText>Premier League</ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.teamItem}>
-            <ThemedText type="defaultSemiBold">Real Madrid</ThemedText>
-            <ThemedText>La Liga</ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </Collapsible>
-      
-      <Collapsible title="Notifications">
-        <ThemedText>
-          Customize your notification preferences for matches, scores, and team updates.
+        <ThemedText style={styles.subtitle}>
+          Player ID: {id}
         </ThemedText>
-        <ThemedView style={styles.settingItem}>
-          <ThemedText>Match Alerts</ThemedText>
-          <IconSymbol size={20} name="bell.fill" color="#4A90E2" />
-        </ThemedView>
-        <ThemedView style={styles.settingItem}>
-          <ThemedText>Score Updates</ThemedText>
-          <IconSymbol size={20} name="bell.fill" color="#4A90E2" />
-        </ThemedView>
-        <ThemedView style={styles.settingItem}>
-          <ThemedText>Team News</ThemedText>
-          <IconSymbol size={20} name="bell.slash" color="#999" />
-        </ThemedView>
-      </Collapsible>
-      
-      <Collapsible title="Account Settings">
-        <ThemedText>
-          Manage your account information and privacy settings.
-        </ThemedText>
-        <TouchableOpacity style={styles.settingItem}>
-          <ThemedText>Edit Profile</ThemedText>
-          <IconSymbol size={20} name="chevron.right" color="#999" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <ThemedText>Change Password</ThemedText>
-          <IconSymbol size={20} name="chevron.right" color="#999" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <ThemedText>Privacy Settings</ThemedText>
-          <IconSymbol size={20} name="chevron.right" color="#999" />
-        </TouchableOpacity>
-      </Collapsible>
-      
-      <Collapsible title="App Settings">
-        <ThemedText>
-          Customize your app experience and preferences.
-        </ThemedText>
-        <ThemedView style={styles.settingItem}>
-          <ThemedText>Dark Mode</ThemedText>
-          <IconSymbol size={20} name="moon.fill" color="#4A90E2" />
-        </ThemedView>
-        <ThemedView style={styles.settingItem}>
-          <ThemedText>Language</ThemedText>
-          <ThemedText>English</ThemedText>
-        </ThemedView>
-        <TouchableOpacity style={styles.settingItem}>
-          <ThemedText>About</ThemedText>
-          <IconSymbol size={20} name="chevron.right" color="#999" />
-        </TouchableOpacity>
-      </Collapsible>
-    </ParallaxScrollView>
-  );
-}
+      </ThemedView>
+    );
+  }
+
+
 
 const styles = StyleSheet.create({
   headerImage: {
@@ -153,5 +68,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 }); 
