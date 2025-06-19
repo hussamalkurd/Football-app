@@ -3,6 +3,11 @@ export const API_CONFIG = {
   API_KEY: process.env.EXPO_PUBLIC_API_FOOTBALL_KEY || 'YOUR_API_KEY_HERE',
   HOST: 'v3.football.api-sports.io',
 };
+/*export const API_CONFIG = {
+  BASE_URL: 'https://api.sportmonks.com',
+  API_KEY: process.env.EXPO_PUBLIC_API_FOOTBALL_KEY || 'YOUR_API_KEY_HERE',
+  HOST: 'api.sportmonks.com',
+};*/
 
 export const API_ENDPOINTS = {
   COUNTRIES: '/countries',
