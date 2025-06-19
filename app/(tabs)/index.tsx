@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity} from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { PlayerCard } from '@/components/PlayerCard';
@@ -18,7 +18,7 @@ export default function HomeScreen() {
   
 
   const navigateToPlayer = (playerId: number, playerName: string) => {
-    router.push(`/(tabs)/profile?id=${playerId}&name=${encodeURIComponent(playerName)}`);
+    router.push(`/Player-Profile?id=${playerId}&name=${encodeURIComponent(playerName)}`);
   };
 
   const featuredPlayers = topScorers?.slice(0, 4).map((scorer, index) => ({
