@@ -7,6 +7,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -40,6 +41,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="compare"
+        options={{
+          title: 'Compare',
+          tabBarIcon: ({ color }) =>  <Feather name="bar-chart-2" size={28} color={color} />,
+        }}
+      />
+        <Tabs.Screen
         name="User-Profile"
         options={{
           title: 'Profile',
