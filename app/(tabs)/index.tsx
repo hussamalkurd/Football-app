@@ -28,10 +28,10 @@ export default function HomeScreen() {
     try {
       console.log('Fetching players from SportMonks API...');
       
-      // Use the correct API token
+
       const API_TOKEN = 'gadQnPaHV1hQzI9nl4vQh9z78NqKA9adYAqOI3vrsqPOCGfEGdxgMTj3pZtw';
       
-      // Try without includes first to test basic API access
+
       const url = `https://api.sportmonks.com/v3/football/players?api_token=${API_TOKEN}&per_page=20`;
       
       console.log('API URL:', url);
@@ -63,7 +63,7 @@ export default function HomeScreen() {
         const convertedPlayers: Player[] = data.data.map((player: any) => ({
           id: player.id,
           name: player.display_name || player.firstname + ' ' + player.lastname,
-          team: 'Unknown Team', // Since we're not using includes
+          team: 'Unknown Team', 
           marketValue: '€' + Math.floor(Math.random() * 200 + 10) + 'M',
           legacyValue: '€' + Math.floor(Math.random() * 300 + 50) + 'M',
           followers: Math.floor(Math.random() * 100 + 1) + 'M',
@@ -81,7 +81,7 @@ export default function HomeScreen() {
       }
     } catch (error) {
       console.error('Error fetching players from API, using mock data:', error);
-      // Fallback to mock data
+
       const mockPlayers: Player[] = [
         {
           id: 1,
@@ -197,12 +197,12 @@ export default function HomeScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      {/* Header */}
+
       <ThemedView style={styles.header}>
         <ThemedText type="title" style={styles.headerTitle}>True Value Football</ThemedText>
       </ThemedView>
 
-      {/* Navigation Tabs */}
+
       <ThemedView style={styles.navTabs}>
         <TouchableOpacity style={styles.navTab}>
           <ThemedText style={styles.navTabText}>Featured</ThemedText>
@@ -218,7 +218,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </ThemedView>
 
-      {/* Player of the Week */}
+
       <ThemedView style={styles.section}>
         <SectionHeader title="Player of the Week" onViewAll={() => {}} />
         {playerOfWeek ? (
@@ -232,7 +232,7 @@ export default function HomeScreen() {
         )}
       </ThemedView>
 
-      {/* Featured Players */}
+
       <ThemedView style={styles.section}>
         <SectionHeader title="Featured Players" onViewAll={() => {}} />
         {featuredPlayers.length > 0 ? (
@@ -251,7 +251,7 @@ export default function HomeScreen() {
         )}
       </ThemedView>
 
-      {/* Trending Players */}
+
       <ThemedView style={styles.section}>
         <SectionHeader title="Trending Players" onViewAll={() => {}} />
         {trendingPlayers.length > 0 ? (
@@ -270,7 +270,7 @@ export default function HomeScreen() {
         )}
       </ThemedView>
 
-      {/* Legacy Rankings */}
+
       <ThemedView style={styles.section}>
         <SectionHeader title="Legacy Rankings" onViewAll={() => {}} />
         {legacyPlayers.length > 0 ? (

@@ -1,5 +1,3 @@
-// sportmonksApi.ts
-
 const SPORTMONKS_API_TOKEN = 'milN02rshqDpqZh1VPCltqO5Nx5DoMv1pecBZlhQcFZUMPb5VOSrrJaExN11';
 const BASE_URL = 'https://api.sportmonks.com/v3/football';
 
@@ -28,7 +26,7 @@ export interface Player {
     nationality: string;
     position_id: number;
     team_id: number;
-    // أضف المزيد حسب الحاجة
+
 }
 
 function getApiHeaders(): HeadersInit {
