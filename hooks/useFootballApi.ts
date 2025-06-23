@@ -28,13 +28,14 @@ function useApiCall<T>(
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       const data = await apiCallRef.current();
+      console.log('data',data)
       console.log('API call successful:', Array.isArray(data) ? data.length : 'Non-array data');
       setState({ data, loading: false, error: null });
     } catch (error) {
-      const errorMessage = error instanceof ApiError 
-        ? error.message 
-        : error instanceof Error 
-          ? error.message 
+      const errorMessage = error instanceof ApiError
+        ? error.message
+        : error instanceof Error
+          ? error.message
           : 'An unexpected error occurred';
       console.error('API call failed:', errorMessage);
       setState({ data: null, loading: false, error: errorMessage });
@@ -65,7 +66,7 @@ export const useLeagues = (params?: {
     params?.season,
     params?.type,
   ]);
-  
+
   return useApiCall(() => footballApi.getLeagues(stableParams), [
     stableParams?.country,
     stableParams?.season,
@@ -79,7 +80,7 @@ export const useTeams = (params?: { league?: number; season?: number; country?: 
     params?.season,
     params?.country,
   ]);
-  
+
   return useApiCall(() => footballApi.getTeams(stableParams), [
     stableParams?.league,
     stableParams?.season,
@@ -99,7 +100,7 @@ export const usePlayers = (params?: {
     params?.season,
     params?.search,
   ]);
-  
+
   return useApiCall(() => footballApi.getPlayers(stableParams), [
     stableParams?.team,
     stableParams?.league,

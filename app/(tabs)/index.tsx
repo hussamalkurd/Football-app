@@ -1,100 +1,208 @@
-import { router } from 'expo-router';
-
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { PlayerCard } from '@/components/PlayerCard';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useLiveMatches, useTopScorers } from '@/hooks/useFootballApi';
+import React, { useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+
+interface Player {
+  id: number;
+  name: string;
+  team: string;
+  marketValue?: string;
+  legacyValue?: string;
+  followers?: string;
+  posts?: string;
+  change?: string;
+  rank?: number;
+  image?: string;
+}
 
 export default function HomeScreen() {
-  const { data: liveMatches, loading: liveLoading, error: liveError } = useLiveMatches();
-  const { data: topScorers, loading: scorersLoading } = useTopScorers(39, 2023);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  
-  console.log('topScorers',topScorers)
-  
+  console.log("players",players)
 
-  const navigateToPlayer = (playerId: number, playerName: string) => {
-    router.push(`/(tabs)/profile?id=${playerId}&name=${encodeURIComponent(playerName)}`);
+  const fetchPlayers = async () => {
+    try {
+      console.log('Fetching players from SportMonks API...');
+      
+      // Use the correct API token
+      const API_TOKEN = 'gadQnPaHV1hQzI9nl4vQh9z78NqKA9adYAqOI3vrsqPOCGfEGdxgMTj3pZtw';
+      
+      // Try without includes first to test basic API access
+      const url = `https://api.sportmonks.com/v3/football/players?api_token=${API_TOKEN}&per_page=20`;
+      
+      console.log('API URL:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      console.log('Response headers:', response.headers);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('API Response received successfully!');
+      console.log('API Response data:', JSON.stringify(data, null, 2));
+      
+      if (data.data && Array.isArray(data.data)) {
+        console.log('Converting API data to players...');
+        const convertedPlayers: Player[] = data.data.map((player: any) => ({
+          id: player.id,
+          name: player.display_name || player.firstname + ' ' + player.lastname,
+          team: 'Unknown Team', // Since we're not using includes
+          marketValue: '€' + Math.floor(Math.random() * 200 + 10) + 'M',
+          legacyValue: '€' + Math.floor(Math.random() * 300 + 50) + 'M',
+          followers: Math.floor(Math.random() * 100 + 1) + 'M',
+          posts: Math.floor(Math.random() * 1000 + 100) + 'M',
+          change: '+' + Math.floor(Math.random() * 30 + 5) + '%',
+          rank: Math.floor(Math.random() * 10 + 1),
+        }));
+        
+        console.log('Successfully converted players from API:', convertedPlayers);
+        setPlayers(convertedPlayers);
+        console.log('Players state updated with API data');
+      } else {
+        console.log('No data array found in API response, using mock data');
+        throw new Error('No data array in API response');
+      }
+    } catch (error) {
+      console.error('Error fetching players from API, using mock data:', error);
+      // Fallback to mock data
+      const mockPlayers: Player[] = [
+        {
+          id: 1,
+          name: 'Lionel Messi',
+          team: 'Inter Miami',
+          marketValue: '€25M',
+          legacyValue: '€250M',
+          followers: '52.3M',
+          posts: '493M',
+        },
+        {
+          id: 2,
+          name: 'Cristiano Ronaldo',
+          team: 'Al Nassr',
+          marketValue: '€15M',
+          legacyValue: '€230M',
+          followers: '108M',
+          posts: '605M',
+        },
+        {
+          id: 3,
+          name: 'Kylian Mbappé',
+          team: 'Real Madrid',
+          marketValue: '€180M',
+          legacyValue: '€200M',
+          followers: '8.2M',
+          posts: '112M',
+        },
+        {
+          id: 4,
+          name: 'Erling Haaland',
+          team: 'Manchester City',
+          marketValue: '€170M',
+          legacyValue: '€180M',
+          followers: '3.1M',
+          posts: '35M',
+        },
+        {
+          id: 5,
+          name: 'Jude Bellingham',
+          team: 'Real Madrid',
+          marketValue: '€150M',
+          legacyValue: '€155M',
+          followers: '2.8M',
+          posts: '21M',
+          change: '+25%',
+        },
+        {
+          id: 6,
+          name: 'Pelé',
+          team: 'Retired',
+          legacyValue: '€300M',
+          rank: 1,
+        },
+        {
+          id: 7,
+          name: 'Diego Maradona',
+          team: 'Retired',
+          legacyValue: '€280M',
+          rank: 2,
+        },
+      ];
+      console.log('Setting mock players:', mockPlayers);
+      setPlayers(mockPlayers);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const featuredPlayers = topScorers?.slice(0, 4).map((scorer, index) => ({
-    id: scorer.player.id,
-    name: scorer.player.name,
-    team: scorer.statistics[0]?.team?.name || 'Unknown Team',
-    marketValue: '€' + Math.floor(Math.random() * 200 + 50) + 'M',
-    legacyValue: '€' + Math.floor(Math.random() * 300 + 100) + 'M',
-    followers: Math.floor(Math.random() * 100 + 10) + 'M',
-    posts: Math.floor(Math.random() * 500 + 100) + 'M',
-    image: `https://via.placeholder.com/80x80/4A90E2/FFFFFF?text=${scorer.player.name.split(' ').map(n => n[0]).join('')}`
-  })) || [];
-
-  const trendingPlayers = topScorers?.slice(0, 3).map((scorer, index) => ({
-    id: scorer.player.id,
-    name: scorer.player.name,
-    team: scorer.statistics[0]?.team?.name || 'Unknown Team',
-    change: '+' + Math.floor(Math.random() * 30 + 10) + '%',
-    legacyValue: '€' + Math.floor(Math.random() * 200 + 100) + 'M',
-    followers: Math.floor(Math.random() * 50 + 5) + 'M',
-    posts: Math.floor(Math.random() * 200 + 50) + 'M'
-  })) || [];
-
-  const playerOfWeek = topScorers?.[0] ? {
-    id: topScorers[0].player.id,
-    name: topScorers[0].player.name,
-    team: topScorers[0].statistics[0]?.team?.name || 'Unknown Team',
-    legacyValue: '€' + Math.floor(Math.random() * 200 + 100) + 'M',
-    change: '+' + Math.floor(Math.random() * 30 + 10) + '%'
-  } : {
-    id: 1,
-    name: 'Loading...',
-    team: 'Loading...',
-    legacyValue: '€0M',
-    change: '+0%'
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchPlayers();
+    setRefreshing(false);
   };
 
-  const legacyRankings = [
-    { id: 1, rank: 1, name: 'Pelé', team: 'Retired', legacyValue: '€300M' },
-    { id: 2, rank: 2, name: 'Diego Maradona', team: 'Retired', legacyValue: '€280M' },
-    { id: 3, rank: 3, name: 'Lionel Messi', team: 'Inter Miami', legacyValue: '€250M' }
-  ];
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
+
+  const featuredPlayers = players.slice(0, 4);
+  const trendingPlayers = players.slice(0, 3);
+  const legacyPlayers = players.slice(0, 3);
+  const playerOfWeek = players[0];
+
+  console.log('featuredPlayers:', featuredPlayers);
+  console.log('trendingPlayers:', trendingPlayers);
+  console.log('legacyPlayers:', legacyPlayers);
+  console.log('playerOfWeek:', playerOfWeek);
+
+  const SectionHeader = ({ title, onViewAll }: { title: string; onViewAll?: () => void }) => (
+    <ThemedView style={styles.sectionHeader}>
+      <ThemedText type="title" style={styles.sectionTitle}>{title}</ThemedText>
+      {onViewAll && (
+        <TouchableOpacity onPress={onViewAll}>
+          <ThemedText style={styles.viewAllText}>View all</ThemedText>
+        </TouchableOpacity>
+      )}
+    </ThemedView>
+  );
+
+  if (loading) {
+    return (
+      <ThemedView style={styles.loadingContainer}>
+        <ThemedText>Loading players...</ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#1a1a1a', dark: '#000000' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#4A90E2"
-          name="sportscourt.fill"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title" style={styles.mainTitle}>True Value Football</ThemedText>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      {/* Header */}
+      <ThemedView style={styles.header}>
+        <ThemedText type="title" style={styles.headerTitle}>True Value Football</ThemedText>
       </ThemedView>
 
-      {!topScorers && !scorersLoading && (
-        <ThemedView style={styles.apiWarningContainer}>
-          <ThemedText style={styles.apiWarningTitle}>🚨 API Key Required</ThemedText>
-          <ThemedText style={styles.apiWarningText}>
-            To see real football data, you need to configure your API key:
-          </ThemedText>
-          <ThemedText style={styles.apiWarningSteps}>
-            1. Get your free API key from api-football.com{'\n'}
-            2. Edit the .env file in your project{'\n'}
-            3. Replace &quot;your_api_key_here&quot; with your key{'\n'}
-            4. Restart the app
-          </ThemedText>
-          <TouchableOpacity style={styles.apiWarningButton}>
-            <ThemedText style={styles.apiWarningButtonText}>View Setup Guide</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-      )}
-
+      {/* Navigation Tabs */}
       <ThemedView style={styles.navTabs}>
         <TouchableOpacity style={styles.navTab}>
           <ThemedText style={styles.navTabText}>Featured</ThemedText>
@@ -110,188 +218,126 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </ThemedView>
 
+      {/* Player of the Week */}
       <ThemedView style={styles.section}>
-        <ThemedView style={styles.sectionHeader}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Player of the Week</ThemedText>
-          <TouchableOpacity>
-            <ThemedText style={styles.viewAllText}>View all</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-        
-        {scorersLoading ? (
-          <ThemedView style={styles.loadingContainer}>
-            <ThemedText>Loading Player of the Week...</ThemedText>
-          </ThemedView>
-        ) : topScorers && topScorers.length > 0 ? (
+        <SectionHeader title="Player of the Week" onViewAll={() => {}} />
+        {playerOfWeek ? (
           <PlayerCard 
             player={playerOfWeek} 
             type="playerOfWeek" 
-            onPress={() => navigateToPlayer(playerOfWeek.id, playerOfWeek.name)}
+            onPress={() => {}}
           />
         ) : (
-          <ThemedView style={styles.errorContainer}>
-            <ThemedText style={styles.errorText}>No player data available</ThemedText>
-            <ThemedText style={styles.errorSubtext}>
-              Please check your API key in the .env file
-            </ThemedText>
-          </ThemedView>
+          <ThemedText>No player of the week available</ThemedText>
         )}
       </ThemedView>
 
+      {/* Featured Players */}
       <ThemedView style={styles.section}>
-        <ThemedView style={styles.sectionHeader}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Featured Players</ThemedText>
-        </ThemedView>
-        
-        {scorersLoading ? (
-          <ThemedView style={styles.loadingContainer}>
-            <ThemedText>Loading featured players...</ThemedText>
-          </ThemedView>
-        ) : topScorers && topScorers.length > 0 ? (
+        <SectionHeader title="Featured Players" onViewAll={() => {}} />
+        {featuredPlayers.length > 0 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
             {featuredPlayers.map((player) => (
-              <PlayerCard 
-                key={player.id} 
-                player={player} 
-                type="featured" 
-                onPress={() => navigateToPlayer(player.id, player.name)}
+              <PlayerCard
+                key={player.id}
+                player={player}
+                type="featured"
+                onPress={() => {}}
               />
             ))}
           </ScrollView>
         ) : (
-          <ThemedView style={styles.errorContainer}>
-            <ThemedText style={styles.errorText}>No featured players available</ThemedText>
-            <ThemedText style={styles.errorSubtext}>
-              API key may be missing or invalid
-            </ThemedText>
-          </ThemedView>
+          <ThemedText>No featured players available</ThemedText>
         )}
       </ThemedView>
 
+      {/* Trending Players */}
       <ThemedView style={styles.section}>
-        <ThemedView style={styles.sectionHeader}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Trending Players</ThemedText>
-          <TouchableOpacity>
-            <ThemedText style={styles.viewAllText}>View all</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-        
-        {scorersLoading ? (
-          <ThemedView style={styles.loadingContainer}>
-            <ThemedText>Loading trending players...</ThemedText>
+        <SectionHeader title="Trending Players" onViewAll={() => {}} />
+        {trendingPlayers.length > 0 ? (
+          <ThemedView style={styles.verticalList}>
+            {trendingPlayers.map((player) => (
+              <PlayerCard
+                key={player.id}
+                player={player}
+                type="trending"
+                onPress={() => {}}
+              />
+            ))}
           </ThemedView>
-        ) : topScorers && topScorers.length > 0 ? (
-          trendingPlayers.map((player) => (
-            <PlayerCard 
-              key={player.id} 
-              player={player} 
-              type="trending" 
-              onPress={() => navigateToPlayer(player.id, player.name)}
-            />
-          ))
         ) : (
-          <ThemedView style={styles.errorContainer}>
-            <ThemedText style={styles.errorText}>No trending players available</ThemedText>
-            <ThemedText style={styles.errorSubtext}>
-              Get your API key from api-football.com
-            </ThemedText>
-          </ThemedView>
+          <ThemedText>No trending players available</ThemedText>
         )}
       </ThemedView>
 
+      {/* Legacy Rankings */}
       <ThemedView style={styles.section}>
-        <ThemedView style={styles.sectionHeader}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Legacy Rankings</ThemedText>
-          <TouchableOpacity>
-            <ThemedText style={styles.viewAllText}>View all</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-        
-        {legacyRankings.map((player) => (
-          <PlayerCard 
-            key={player.id} 
-            player={player} 
-            type="legacy" 
-            onPress={() => navigateToPlayer(player.id, player.name)}
-          />
-        ))}
-      </ThemedView>
-
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>Live Matches</ThemedText>
-        {liveError && (
-          <ThemedView style={styles.errorContainer}>
-            <ThemedText style={styles.errorText}>Error loading live matches: {liveError}</ThemedText>
+        <SectionHeader title="Legacy Rankings" onViewAll={() => {}} />
+        {legacyPlayers.length > 0 ? (
+          <ThemedView style={styles.verticalList}>
+            {legacyPlayers.map((player, index) => (
+              <PlayerCard
+                key={player.id}
+                player={{ ...player, rank: index + 1 }}
+                type="legacy"
+                onPress={() => {}}
+              />
+            ))}
           </ThemedView>
-        )}
-        {liveLoading ? (
-          <ThemedView style={styles.loadingContainer}>
-            <ThemedText>Loading live matches...</ThemedText>
-          </ThemedView>
-        ) : liveMatches && liveMatches.length > 0 ? (
-          liveMatches.slice(0, 3).map((match) => (
-            <ThemedView key={match.fixture.id} style={styles.liveMatchCard}>
-              <ThemedView style={styles.matchInfo}>
-                <ThemedText type="defaultSemiBold">{match.teams.home.name}</ThemedText>
-                <ThemedText type="defaultSemiBold">
-                  {match.goals.home ?? 0} - {match.goals.away ?? 0}
-                </ThemedText>
-                <ThemedText type="defaultSemiBold">{match.teams.away.name}</ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.matchStatus}>
-                <ThemedText style={styles.liveText}>LIVE</ThemedText>
-                <ThemedText>{match.fixture.status.elapsed}&apos;</ThemedText>
-              </ThemedView>
-              <ThemedText style={styles.leagueText}>{match.league.name}</ThemedText>
-            </ThemedView>
-          ))
         ) : (
-          <ThemedView style={styles.noDataContainer}>
-            <ThemedText>No live matches at the moment</ThemedText>
-          </ThemedView>
+          <ThemedText>No legacy players available</ThemedText>
         )}
       </ThemedView>
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 20,
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
   },
-  mainTitle: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  header: {
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#4A90E2',
-  },
-  headerImage: {
-    color: '#4A90E2',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+    color: '#111827',
+    textAlign: 'center',
   },
   navTabs: {
     flexDirection: 'row',
-    marginBottom: 24,
-    gap: 16,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   navTab: {
-    paddingHorizontal: 16,
+    flex: 1,
+    alignItems: 'center',
     paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
   },
   navTabText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '500',
+    color: '#6b7280',
   },
   section: {
-    gap: 16,
-    marginBottom: 32,
+    marginTop: 24,
+    paddingHorizontal: 20,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -301,101 +347,19 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#111827',
   },
   viewAllText: {
-    color: '#4A90E2',
     fontSize: 14,
-    fontWeight: '600',
+    color: '#3b82f6',
+    fontWeight: '500',
   },
   horizontalScroll: {
-    marginHorizontal: -16,
+    marginLeft: -20,
+    paddingLeft: 20,
   },
-  liveMatchCard: {
-    backgroundColor: '#fff3cd',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ffeaa7',
-    marginBottom: 8,
-  },
-  matchInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  matchStatus: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  liveText: {
-    color: '#dc3545',
-    fontWeight: 'bold',
-  },
-  leagueText: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  errorContainer: {
-    padding: 16,
-    backgroundColor: '#f8d7da',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#f5c6cb',
-  },
-  errorText: {
-    color: '#721c24',
-  },
-  errorSubtext: {
-    color: '#6c757d',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  noDataContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  apiWarningContainer: {
-    padding: 16,
-    backgroundColor: '#fff3cd',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ffeaa7',
-    marginBottom: 20,
-  },
-  apiWarningTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#dc3545',
-    marginBottom: 8,
-  },
-  apiWarningText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  apiWarningSteps: {
-    fontSize: 12,
-    color: '#6c757d',
-    marginBottom: 16,
-  },
-  apiWarningButton: {
-    padding: 12,
-    backgroundColor: '#4A90E2',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  apiWarningButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+  verticalList: {
+    gap: 8,
   },
 });
