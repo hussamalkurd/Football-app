@@ -19,7 +19,7 @@ export const API_ENDPOINTS = {
   TEAMS: '/teams',
 
   STANDINGS: '/standings',
-  
+
   FIXTURES: '/fixtures',
   LIVE_FIXTURES: '/fixtures?live=all',
 
