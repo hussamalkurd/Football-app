@@ -28,8 +28,8 @@ function useApiCall<T>(
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       const data = await apiCallRef.current();
-      console.log('data',data)
-      console.log('API call successful:', Array.isArray(data) ? data.length : 'Non-array data');
+
+
       setState({ data, loading: false, error: null });
     } catch (error) {
       const errorMessage = error instanceof ApiError
@@ -37,7 +37,7 @@ function useApiCall<T>(
         : error instanceof Error
           ? error.message
           : 'An unexpected error occurred';
-      console.error('API call failed:', errorMessage);
+      console.error(errorMessage);
       setState({ data: null, loading: false, error: errorMessage });
     }
   }, []);
