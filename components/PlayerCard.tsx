@@ -22,7 +22,7 @@ interface PlayerCardProps {
 }
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({ player, type = 'featured', onPress }) => {
-  console.log('PlayerCard rendering:', { player, type });
+
   
   const renderFeaturedCard = () => (
     <TouchableOpacity style={styles.featuredCard} onPress={onPress}>
@@ -113,7 +113,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, type = 'featured
 };
 
 const styles = StyleSheet.create({
-  // Featured Card Styles
+
   featuredCard: {
     width: 280,
     marginRight: 16,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
 
-  // Trending Card Styles
+
   trendingCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
 
-  // Legacy Card Styles
+
   legacyCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
 
-  // Player of the Week Card Styles
+
   playerOfWeekCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
