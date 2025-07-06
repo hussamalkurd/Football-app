@@ -1,6 +1,7 @@
 import { PlayerCard } from '@/components/PlayerCard';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -21,20 +22,19 @@ export default function HomeScreen() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
 
-  console.log("players",players)
+
 
   const fetchPlayers = async () => {
     try {
-      console.log('Fetching players from SportMonks API...');
       
-
       const API_TOKEN = 'gadQnPaHV1hQzI9nl4vQh9z78NqKA9adYAqOI3vrsqPOCGfEGdxgMTj3pZtw';
       
 
       const url = `https://api.sportmonks.com/v3/football/players?api_token=${API_TOKEN}&per_page=20`;
       
-      console.log('API URL:', url);
+
       
       const response = await fetch(url, {
         method: 'GET',
@@ -44,22 +44,18 @@ export default function HomeScreen() {
         },
       });
       
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      console.log('Response headers:', response.headers);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response body:', errorText);
+
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('API Response received successfully!');
-      console.log('API Response data:', JSON.stringify(data, null, 2));
+      
       
       if (data.data && Array.isArray(data.data)) {
-        console.log('Converting API data to players...');
+
         const convertedPlayers: Player[] = data.data.map((player: any) => ({
           id: player.id,
           name: player.display_name || player.firstname + ' ' + player.lastname,
@@ -72,15 +68,15 @@ export default function HomeScreen() {
           rank: Math.floor(Math.random() * 10 + 1),
         }));
         
-        console.log('Successfully converted players from API:', convertedPlayers);
+
         setPlayers(convertedPlayers);
-        console.log('Players state updated with API data');
+
       } else {
-        console.log('No data array found in API response, using mock data');
+
         throw new Error('No data array in API response');
       }
     } catch (error) {
-      console.error('Error fetching players from API, using mock data:', error);
+      console.error(error);
 
       const mockPlayers: Player[] = [
         {
@@ -144,7 +140,7 @@ export default function HomeScreen() {
           rank: 2,
         },
       ];
-      console.log('Setting mock players:', mockPlayers);
+
       setPlayers(mockPlayers);
     } finally {
       setLoading(false);
@@ -166,10 +162,7 @@ export default function HomeScreen() {
   const legacyPlayers = players.slice(0, 3);
   const playerOfWeek = players[0];
 
-  console.log('featuredPlayers:', featuredPlayers);
-  console.log('trendingPlayers:', trendingPlayers);
-  console.log('legacyPlayers:', legacyPlayers);
-  console.log('playerOfWeek:', playerOfWeek);
+
 
   const SectionHeader = ({ title, onViewAll }: { title: string; onViewAll?: () => void }) => (
     <ThemedView style={styles.sectionHeader}>
@@ -225,7 +218,7 @@ export default function HomeScreen() {
           <PlayerCard 
             player={playerOfWeek} 
             type="playerOfWeek" 
-            onPress={() => {}}
+            onPress={() => router.push({ pathname: '/player/[id]', params: { id: playerOfWeek.id.toString() } })}
           />
         ) : (
           <ThemedText>No player of the week available</ThemedText>
@@ -234,7 +227,7 @@ export default function HomeScreen() {
 
 
       <ThemedView style={styles.section}>
-        <SectionHeader title="Featured Players" onViewAll={() => {}} />
+        <SectionHeader title="Featured Players" onViewAll={() => router.push('/player')} />
         {featuredPlayers.length > 0 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
             {featuredPlayers.map((player) => (
@@ -242,7 +235,7 @@ export default function HomeScreen() {
                 key={player.id}
                 player={player}
                 type="featured"
-                onPress={() => {}}
+                onPress={() => router.push({ pathname: '/player/[id]', params: { id: player.id.toString() } })}
               />
             ))}
           </ScrollView>
@@ -253,7 +246,7 @@ export default function HomeScreen() {
 
 
       <ThemedView style={styles.section}>
-        <SectionHeader title="Trending Players" onViewAll={() => {}} />
+        <SectionHeader title="Trending Players" onViewAll={() => router.push('/player')} />
         {trendingPlayers.length > 0 ? (
           <ThemedView style={styles.verticalList}>
             {trendingPlayers.map((player) => (
@@ -261,7 +254,7 @@ export default function HomeScreen() {
                 key={player.id}
                 player={player}
                 type="trending"
-                onPress={() => {}}
+                onPress={() => router.push({ pathname: '/player/[id]', params: { id: player.id.toString() } })}
               />
             ))}
           </ThemedView>
@@ -272,7 +265,7 @@ export default function HomeScreen() {
 
 
       <ThemedView style={styles.section}>
-        <SectionHeader title="Legacy Rankings" onViewAll={() => {}} />
+        <SectionHeader title="Legacy Rankings" onViewAll={() => router.push('/player')} />
         {legacyPlayers.length > 0 ? (
           <ThemedView style={styles.verticalList}>
             {legacyPlayers.map((player, index) => (
@@ -280,7 +273,7 @@ export default function HomeScreen() {
                 key={player.id}
                 player={{ ...player, rank: index + 1 }}
                 type="legacy"
-                onPress={() => {}}
+                onPress={() => router.push({ pathname: '/player/[id]', params: { id: player.id.toString() } })}
               />
             ))}
           </ThemedView>

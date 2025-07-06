@@ -40,6 +40,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Discover',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="sparkles" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="compare"
+        options={{
+          title: 'Compare',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="arrow.left.and.right" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="transfer"
+        options={{
+          title: 'Transfer',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="arrow.left.arrow.right" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="User-Profile"
         options={{
           title: 'Profile',
