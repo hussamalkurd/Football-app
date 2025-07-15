@@ -1,20 +1,35 @@
-import { useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-
+import { PlayerCard } from '@/components/PlayerCard';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useLeagues, useLiveMatches, useTeams } from '@/hooks/useFootballApi';
+import { useLeagues, useLiveMatches, usePlayers, useTeams } from '@/hooks/useFootballApi';
+import { useMemo, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'matches' | 'leagues' | 'teams'>('matches');
+  const [activeTab, setActiveTab] = useState<'matches' | 'leagues' | 'teams' | 'players'>('matches');
   
   const { data: liveMatches, loading: liveLoading, error: liveError, refetch: refetchLive } = useLiveMatches();
   const { data: leagues, loading: leaguesLoading, error: leaguesError } = useLeagues();
   
   const teamParams = useMemo(() => ({ league: 39, season: 2023 }), []);
   const { data: teams, loading: teamsLoading, error: teamsError } = useTeams(teamParams);
+
+
+  const { data: players, loading: playersLoading, error: playersError } = usePlayers(
+    searchQuery ? { search: searchQuery } : undefined
+  );
+
+
+  const teamIdToName = useMemo(() => {
+    if (!teams) return {};
+    const map: Record<number, string> = {};
+    teams.forEach((team) => {
+      map[team.id] = team.name;
+    });
+    return map;
+  }, [teams]);
 
   const onRefresh = () => {
     refetchLive();
@@ -84,6 +99,14 @@ export default function SearchScreen() {
         >
           <ThemedText style={[styles.tabText, activeTab === 'teams' && styles.activeTabText]}>
             Teams
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'players' && styles.activeTab]}
+          onPress={() => setActiveTab('players')}
+        >
+          <ThemedText style={[styles.tabText, activeTab === 'players' && styles.activeTabText]}>
+            Players
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
@@ -198,6 +221,38 @@ export default function SearchScreen() {
             ) : (
               <ThemedView style={styles.noDataContainer}>
                 <ThemedText>No teams found</ThemedText>
+              </ThemedView>
+            )}
+          </ThemedView>
+        )}
+
+        {activeTab === 'players' && (
+          <ThemedView>
+            {playersError && (
+              <ThemedView style={styles.errorContainer}>
+                <ThemedText style={styles.errorText}>Error: {playersError}</ThemedText>
+              </ThemedView>
+            )}
+            {playersLoading ? (
+              <ThemedView style={styles.loadingContainer}>
+                <ThemedText>Loading players...</ThemedText>
+              </ThemedView>
+            ) : players && players.length > 0 ? (
+              players.map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  player={{
+                    id: player.id,
+                    name: player.name || (player.firstname + ' ' + player.lastname),
+                    team: (player as any).team_id ? (teamIdToName[(player as any).team_id] || 'Unknown') : 'Unknown',
+                    image: player.photo,
+                  }}
+                  type="featured"
+                />
+              ))
+            ) : (
+              <ThemedView style={styles.noDataContainer}>
+                <ThemedText>No players found</ThemedText>
               </ThemedView>
             )}
           </ThemedView>
